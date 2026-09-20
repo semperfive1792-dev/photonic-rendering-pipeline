@@ -80,6 +80,10 @@ The strongest part of this document is not the proposal — it's the questions i
 
 If these questions have bad answers, the proposal fails. If they have interesting answers, it's worth building.
 
+## Publications
+
+📄 **Archived version:** [Photonic Rendering Pipeline: A Proposal for an All-Optical Display Chain](https://doi.org/10.5281/zenodo.22862885) (CC-BY 4.0)
+
 ## License
 
 CC BY 4.0. The value is in integration, not in patenting components. This is a defensive publication — it exists so that nobody can patent the architecture, including the author.
