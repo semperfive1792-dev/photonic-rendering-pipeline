@@ -1,4 +1,4 @@
-readme = """# Photonic Rendering Pipeline
+# Photonic Rendering Pipeline
 
 **What if a display didn't need HDMI, DisplayPort, a scaler, a T-CON, or a pixel matrix?**
 
@@ -61,24 +61,30 @@ None of these alone is a display. The proposal gives them an integration framewo
 
 ```bash
 python3 simulation/latency_model.py
-What to Read
- — full technical document (45 sections, ~62K chars). Architecture, addressing budget, experimental roadmap, 8 "Where I'm Probably Wrong" items, 7 falsifiable predictions.
- — market context for non-engineers. Why this might matter commercially, and why it's published under CC BY 4.0.
-simulation/ — Python models for latency and power budget.
-The Honest Core
+```
+
+## What to Read
+
+- **[Photonic_Rendering_Pipeline.md](Photonic_Rendering_Pipeline.md)** — full technical document (45 sections, ~62K chars). Architecture, addressing budget, experimental roadmap, 8 "Where I'm Probably Wrong" items, 7 falsifiable predictions.
+- **[VISION.md](VISION.md)** — market context for non-engineers. Why this might matter commercially, and why it's published under CC BY 4.0.
+- **`simulation/`** — Python models for latency and power budget.
+
+## The Honest Core
+
 The strongest part of this document is not the proposal — it's the questions it asks honestly:
 
-Can 8 million pixels be addressed optically at 240 Hz without recreating a T-CON?
-Can analog optics deliver 10-bit HDR precision (4–8 bits is typical)?
-What does photonics add for latency that digital scanout and racing the beam don't?
-Input traffic is 8–30× larger than the output it replaces. Why does an optical interface win?
+1. Can 8 million pixels be addressed optically at 240 Hz without recreating a T-CON?
+2. Can analog optics deliver 10-bit HDR precision (4–8 bits is typical)?
+3. What does photonics add for latency that digital scanout and racing the beam don't?
+4. Input traffic is 8–30× larger than the output it replaces. Why does an optical interface win?
+
 If these questions have bad answers, the proposal fails. If they have interesting answers, it's worth building.
 
-License
+## License
+
 CC BY 4.0. The value is in integration, not in patenting components. This is a defensive publication — it exists so that nobody can patent the architecture, including the author.
 
-Not an engineer? Start with . Engineer? Start with the full document, then tell me where I'm wrong. """
+---
 
-with open("README.md", "w") as f: f.write(readme)
-
-print(f"README.md written: {len(readme)} chars")
+*Not an engineer? Start with [VISION.md](VISION.md).*
+*Engineer? Start with the full document, then tell me where I'm wrong.*
