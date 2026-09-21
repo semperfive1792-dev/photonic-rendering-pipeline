@@ -323,21 +323,21 @@ Proposed Structure
 We propose an intermediate shared memory hub positioned between the electronic compute domain and the photonic render domain:
 
 ┌─────────────────────────────────────────────────┐
-│                  Compute (GPU/NPU)               │
-│  Ray tracing │ Rasterization │ Neural inference  │
+│                  Compute (GPU/NPU)              │
+│  Ray tracing │ Rasterization │ Neural inference │
 └──────────────────────┬──────────────────────────┘
                        │ Write (single producer)
                        ▼
               ┌────────────────────┐
-              │  Shared Memory Hub  │
-              │                     │
-              │  G-buffer  │ Motion  │
-              │  Vectors   │ History  │
-              │  Variance  │ Features │
-              │                     │
-              │  Multi-read,         │
-              │  single-write        │
-              └──┬─────┬─────┬──────┘
+              │  Shared Memory Hub │
+              │                    │
+              │  G-buffer │ Motion │
+              │  Vectors  │ History│
+              │  Variance │Features│
+              │                    │
+              │  Multi-read,       │
+              │  single-write      │
+              └──┬─────┬─────┬─────┘
                  │     │     │
           ┌──────┘     │     └──────┐
           ▼            ▼            ▼
