@@ -307,6 +307,60 @@ However, this advantage must be quantified. **The energy-per-bit comparison betw
 
 E/O conversion does not disappear — it moves from the display cable to the chiplet interface. The architecture changes where conversion happens, not whether it happens.
 
+## 5.1 Shared Memory Hub — Intermediate Buffer Between Compute and Photonic Render
+The current GPU memory hierarchy is designed around a linear pipeline: compute writes a framebuffer, display controller reads it. In a hybrid electronic–photonic architecture, this model breaks down — multiple consumers need access to the same scene data simultaneously, at different stages of frame construction, and with different access patterns.
+
+The Problem
+During a single frame, several subsystems may require the same data at the same time:
+
+Photonic renderer reads the G-buffer (normals, depth, albedo, motion vectors) to produce the optical image representation.
+Neural post-processing (denoising, super-resolution, frame synthesis) reads the same G-buffer plus temporal history.
+Adaptive sampling reads variance maps derived from the G-buffer to decide where to cast additional rays.
+Compositor reads partially reconstructed image data for UI overlay and final blend.
+In a conventional GPU, each of these stages accesses global memory independently — often re-reading the same data from VRAM, incurring full memory bandwidth cost each time. At 4K with path tracing, a single G-buffer pass can consume 30–60 GB/s. If three consumers each read the same G-buffer independently, the effective bandwidth demand triples.
+
+Proposed Structure
+We propose an intermediate shared memory hub positioned between the electronic compute domain and the photonic render domain:
+
+┌─────────────────────────────────────────────────┐
+│                  Compute (GPU/NPU)               │
+│  Ray tracing │ Rasterization │ Neural inference  │
+└──────────────────────┬──────────────────────────┘
+                       │ Write (single producer)
+                       ▼
+              ┌────────────────────┐
+              │  Shared Memory Hub  │
+              │                     │
+              │  G-buffer  │ Motion  │
+              │  Vectors   │ History  │
+              │  Variance  │ Features │
+              │                     │
+              │  Multi-read,         │
+              │  single-write        │
+              └──┬─────┬─────┬──────┘
+                 │     │     │
+          ┌──────┘     │     └──────┐
+          ▼            ▼            ▼
+     Photonic      Neural        Adaptive
+     Renderer     Post-Proc      Sampling
+
+Design Principles
+Single-write, multi-read. The compute domain writes scene data once. All consumers read from the same physical storage, not from independent copies. This eliminates redundant VRAM traffic.
+
+Coherent snapshot. The hub holds a coherent snapshot of the current frame's intermediate data. Consumers read the same version, avoiding race conditions between, for example, the photonic renderer and the denoiser.
+
+Close to compute. The hub sits on the same package as the compute chiplets — not in external HBM. This reduces read latency from ~100 ns (HBM) to ~10 ns (on-package SRAM or embedded DRAM).
+
+Protocol-agnostic. The hub does not interpret the data — it stores opaque blocks tagged by type (G-buffer, motion, variance) and serves them to any consumer that requests a block by type and tile coordinates.
+
+What This Changes in GPU Architecture
+In a conventional GPU, the memory controller is the single arbiter between compute and display. Adding a shared memory hub introduces a second arbitration layer — but one that is simpler, closer to compute, and optimized for broadcast reads rather than sequential pipeline stages.
+
+This is not a fundamental redesign of the GPU. It is a repositioning of the memory hierarchy: instead of one large pool of VRAM serving everything, there is a small, fast, shared buffer that sits between compute and the photonic domain — reducing the bandwidth pressure on both HBM (less redundant traffic) and the E/O interface (data is read once from the hub, not re-fetched from VRAM per consumer).
+
+Bandwidth Impact
+If three consumers each require the G-buffer at 30 GB/s, the conventional approach demands 90 GB/s from VRAM. With the shared hub, the VRAM-to-hub transfer is 30 GB/s (one write), and the hub-to-consumer transfers are served from on-package memory at lower energy per bit. The hub does not eliminate the bandwidth — it consolidates it, turning three independent streams into one write plus three local reads.
+
 ## 6. Photonic Rendering Chiplet
 
 The photonic chiplet is the central accelerator of the architecture.
