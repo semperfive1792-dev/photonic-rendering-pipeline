@@ -1,94 +1,178 @@
 # Photonic Rendering Pipeline
 
-**What if a display didn't need HDMI, DisplayPort, a scaler, a T-CON, or a pixel matrix?**
+**A Hybrid Electronic–Photonic Architecture for Direct Optical Image Formation**
 
-This repository proposes a display architecture where the path from render output to visible light is optical, not digital. No framebuffer, no display cable, no digital-to-analog conversion at the panel. The idea is a question, not a finished design — but a question that may be worth asking.
+Author: Semperfive  
+License: CC BY 4.0  
+Status: Architectural proposal / research framework (not a product)
 
 ---
 
-## The Problem
+## Core Idea
 
-Today's display chain has 11 stages between the GPU and your eyes:
+> If the final information is light, there is value in asking how early in the pipeline it can become light — and how late it can remain light.
 
-> GPU render → framebuffer → display encoder → cable (HDMI/DP) → receiver → scaler → T-CON → column drivers → DAC → pixel matrix → light
+The architecture divides the graphics system into two domains:
 
-Each stage adds latency, power, and cost. Each stage exists because it solved a real problem — but nobody has asked whether the whole chain can be replaced, because the alternative wasn't possible until recently.
+- **Electronic** — general-purpose computation, control, memory, simulation, OS interaction.
+- **Photonic** — neural rendering, image transformations, optical signal distribution, direct optical image formation.
 
-## The Proposal
+The system does **not** attempt to build a fully photonic computer. It combines a conventional electronic processor with one or more photonic chiplets, then preserves the optical signal from rendering output to display — without converting it back into a digital framebuffer.
 
-Replace the digital display chain with an optical one:
+---
 
-> Photonic computation → optical transport → laser excitation → light
+## Repository Contents
 
-Six stages instead of eleven. The transport layer is light, not copper. The modulation is optical, not electrical. The display surface emits light directly from laser excitation — no pixel matrix, no column drivers, no DAC.
+| File | Description |
+|------|-------------|
+| `Photonic_Rendering_Pipeline.md` | Main architecture document (47 sections, ~77K characters) |
+| `Economic_Logic.md` | Economic rationale: cheaper research + cheaper final product |
+| `TASK-01_Electronic_Photonic_Interface.md` | Research task: E/O interface power-budget analysis (v1.1, corrected) |
 
-This is **not** a fully photonic GPU. It is a heterogeneous system: electronic for logic and memory, photonic for transport and modulation.
+---
 
-## What's Real
+## Section Map
 
-This proposal builds on seven existing technologies:
+| § | Title | Key content |
+|---|-------|-------------|
+| 1 | Core Thesis | "Do not optimize an unnecessary representation. Remove it." |
+| 2 | Design Philosophy | Heterogeneity, selective photonic compute, preserve optical data |
+| 3 | Proposed System Architecture | Six functional domains, block diagram |
+| 4 | Electronic Domain | CPU/GPU/NPU/memory — no conventional framebuffer required |
+| 5 | Input Data and the E/O Boundary | 30–108 GB/s input traffic; 8–30× larger than display link |
+| **5.1** | **Shared Memory Hub** | **Single-write / multi-read buffer between compute and photonic domains** |
+| 6 | Photonic Rendering Chiplet | Neural rendering, reconstruction, optical image transforms |
+| 7 | Chiplet Architecture | Heterogeneous package, SEECHIP photonic inter-chiplet links |
+| 8 | Why Photonic Compute Is Selective | Boundary determined by total system cost, not ideology |
+| 9 | Optical Data Distribution | Physical broadcast via optical splitting — no digital duplication |
+| 10 | Optical Image Representation | I(x, y, λ, t) instead of fixed pixel matrix |
+| 11 | Continuous Optical Reconstruction | Optical PSF as physical reconstruction filter |
+| 12 | Anti-Aliasing as System Property | Scene sampling ≠ display sampling — optics addresses the latter |
+| 13 | No Traditional Raster Scan | Raster-scan tearing not inherent; other artifacts remain possible |
+| 14 | Optical Interconnect | Waveguide / fiber / free-space — no digital serialization for transport |
+| 15 | Optical Output Module | Standardized optical interface for multiple display technologies |
+| 16 | Display Architecture | Laser-phosphor / direct laser / projection; potentially removable components |
+| 17 | Contrast and Dynamic Range | True black from laser extinction; not unique vs OLED |
+| 18 | Color | Wavelength-selective sources; gamut beyond sRGB (technology-dependent) |
+| 19 | Color and Brightness | TriLite (narrowband RGB laser) vs Prysm (broadband phosphor) — do not merge |
+| 20 | Brightness and Power | System-level hypothesis, not guaranteed |
+| 21 | Latency | Display-chain latency, not end-to-end; sub-ms is architectural target |
+| 22 | Bandwidth | Optical bandwidth limited by physics, not display protocol |
+| 23 | Resolution | Floating resolution within optical transfer function limits |
+| 24 | What the Architecture Potentially Removes | Display controller, serializer, HDMI/DP PHY, T-CON, backlight, color filters |
+| 25 | What Does NOT Disappear | Memory, control, calibration, thermal management, safety |
+| 26 | Addressing Budget | 2–6 Gspots/s for 4K@240 Hz; three variants (scanning, array, tiled) |
+| 27 | Transitional Architecture | Electronic GPU → E/O → optical display; photonic renderer added later |
+| 28 | Experimental Roadmap | Five stages: transport → reconstruction → addressing → neural → full path |
+| 29 | Critical Engineering Questions | Spatial addressing, power budget, precision/HDR, nonlinearity, memory, calibration |
+| 30 | Where the Real Architectural Novelty Lies | Composition, not individual components; E/O boundary is the subject |
+| 31 | Where I Am Probably Wrong | Seven open vulnerabilities explicitly listed |
+| 32 | Architectural Principle | "Use electronics to decide; use photonics to transform; keep it optical" |
+| 33 | Potential System-Level Benefits | Lower data movement, broadcast, physical reconstruction, modularity |
+| **33.1** | **Use Cases** | **Game streaming (optical splitter replaces capture card + NVENC); display cloning** |
+| 34 | Potential Performance Envelope | Targets, not claims |
+| 35 | Comparison of Architectural Philosophies | Remove representations vs. add components |
+| 36 | Why This May Be Timely | Seven technologies converging independently |
+| 37 | The Key Research Question | How much of the pipeline can remain optical? |
+| 38 | Falsifiable Predictions | Seven testable predictions |
+| 39 | What Would Constitute Success | Any measurable system-level improvement on one workload |
+| 40 | Broader Implication | Question the intermediate representation, not just optimize it |
+| 41 | Historical Context: CRT and Flat Panels | Simpler ≠ winner; CRT was simpler, lost on physics |
+| 42 | Final Architecture | Complete block diagram |
+| 43 | Conclusion | Compute electronically → render photonically → display optically |
+| 44 | Existing Technologies | Seven referenced technologies with status and scale notes |
+| 45 | Economics and Distributed Research Path | Cost tiers, distributed model, transitional device, open licensing |
+| **46** | **Broader Application Domains** | **Healthcare, AR/VR, avionics, control centers, machine vision, satellite** |
 
-| Technology | Source | What it does |
-|------------|--------|-------------|
-| ACCEL | Tsinghua, *Nature* 2023 | Analog photonic chip — 3000× faster than A100 for classification (not 4K rendering) |
-| OPCA | Tsinghua, *Optica* 2024 | Photonic chip integrating sensing and computing |
-| SEECHIP | ICPP 2023 | Photonic accelerator compiler |
-| MIT ski-jump | *Nature* 2025 | On-chip free-space beam scanning — 68.6 M spots/s·mm² |
-| TriLite Trixel 3 | Display Week 2026 (prototype) | RGB laser beam scanning, 214% sRGB |
-| Prysm LPD | Commercial (signage) | Laser-phosphor display, >80,000:1 contrast |
-| Brilliance Laserchip | 2026 | Laser chips for AR display |
+---
 
-None of these alone is a display. The proposal gives them an integration framework.
+## Key Technologies Referenced
 
-## What This Is Not
+| Technology | Institution | Status | Relevance |
+|-----------|-------------|--------|-----------|
+| ACCEL | Tsinghua University | Published (Nature 2023) | Photonic computation for vision (72 ns/frame classification) |
+| OPCA | Tsinghua University | Published (Optica 2024) | End-to-end optical image processing (6 ns response) |
+| SEECHIP | University of Otago | Published (ICPP 2023) | Photonic inter-chiplet network for GPU |
+| MIT ski-jump | MIT / MITRE | Published (Nature 2025) | Chip-scale beam scanning (68.6 Mspots/s·mm²) |
+| TriLite Trixel 3 | TriLite Technologies | Prototype (I-Zone 2026 award) | Direct RGB laser beam scanning for AR |
+| Prysm LPD 6K | Prysm Systems | Commercial product | Laser-phosphor display (360 Hz, 1M:1 contrast) |
+| Brilliance RGB | Brilliance RGB | Startup (€6M funded, 2026) | Integrated RGB laser chips for AR |
 
-- **Not a finished architecture.** Pixel addressing is unsolved — 6 G spots/s for 4K@240. Three variants are proposed (beam scanning, emitter array, tiled scanners), none selected.
-- **Not a claim that the industry is stupid.** Every layer in the current chain solves a real problem. This proposal asks whether some of those problems have a simpler solution in the optical domain.
-- **Not "zero latency."** End-to-end latency is dominated by the render itself (~8 ms at 120 Hz). The target is **display-chain latency** — from render output to photon — not scene-to-photon.
-- **Not "infinite contrast."** OLED achieves true black by turning pixels off. The advantage here is a combination of brightness, contrast, and gamut, not any single metric.
+**Scale note:** ACCEL and OPCA demonstrate photonic computation on small images (classification), not 4K rendering. MIT ski-jump demonstrates beam scanning, not chip-to-fiber coupling. TriLite is a prototype, not a shipping product. Prysm is commercial but for workplace displays, not consumer gaming.
 
-## Simulation
+---
 
-`simulation/latency_model.py` — an architectural model comparing conventional and photonic display chains.
+## Economic Logic
 
-| Metric | Conventional | Photonic | Reduction |
-|--------|-------------|----------|-----------|
-| Display-chain latency | ~3.2 ms | ~0.73 ms | 77% |
-| Power | 335 W | 78 W | 77% |
-| Stages | 11 | 6 | — |
+**"Simpler and cheaper — both in research and in the final product — at the same or better quality. The transition period is excluded: layering old and new technology is always more expensive."**
 
-**This is an architectural illustration, not experimental proof.** The numbers are derived from component specifications and engineering estimates, not measured photonic hardware.
+### Cheaper research
 
-```bash
-python3 simulation/latency_model.py
-```
+- Chiplet modularity: each stage validated independently ($10K–$50K per stage, not $15M for everything at once)
+- Distributed model: multiple labs, each holding one piece of the pipeline
+- Transitional architecture: existing GPU + optical display before photonic rendering matures
 
-## What to Read
+### Cheaper final product
 
-- **[Photonic_Rendering_Pipeline.md](Photonic_Rendering_Pipeline.md)** — full technical document (45 sections, ~62K chars). Architecture, addressing budget, experimental roadmap, 8 "Where I'm Probably Wrong" items, 7 falsifiable predictions.
-- **[VISION.md](VISION.md)** — market context for non-engineers. Why this might matter commercially, and why it's published under CC BY 4.0.
-- **`simulation/`** — Python models for latency and power budget.
+Components are physically removed, not optimized:
+- HDMI licensing → eliminated
+- T-CON, display-side framebuffer, scaler → eliminated
+- Backlight, polarizers, color-filter matrix → eliminated
+- Capture card → replaced by passive optical splitter
 
-## The Honest Core
+### Same or better quality
 
-The strongest part of this document is not the proposal — it's the questions it asks honestly:
+- Contrast: true black from laser extinction
+- Color gamut: beyond sRGB (technology-dependent)
+- Anti-aliasing: optical PSF as physical reconstruction filter
+- Latency: display-chain latency potentially sub-millisecond
+- Resolution: floating, determined by optical transfer function
 
-1. Can 8 million pixels be addressed optically at 240 Hz without recreating a T-CON?
-2. Can analog optics deliver 10-bit HDR precision (4–8 bits is typical)?
-3. What does photonics add for latency that digital scanout and racing the beam don't?
-4. Input traffic is 8–30× larger than the output it replaces. Why does an optical interface win?
+Each quality claim is a **hypothesis to be measured**, not a guaranteed specification.
 
-If these questions have bad answers, the proposal fails. If they have interesting answers, it's worth building.
+See `Economic_Logic.md` for the full rationale with section references.
 
-## Publications
+---
 
-📄 **Archived version:** [Photonic Rendering Pipeline: A Proposal for an All-Optical Display Chain](https://doi.org/10.5281/zenodo.22862885) (CC-BY 4.0)
+## Current Status
+
+- **What this is:** Architectural proposal + research framework. Seven real technologies referenced. Five-stage experimental roadmap. Six broader application domains identified.
+- **What this is not:** A product, a simulation proof, or a claim that photonic rendering is commercially viable today.
+- **Open engineering questions (7):** Spatial addressing at 2–6 Gspots/s, precision/HDR at 4–8 bits, input interface justification, T-CON replacement complexity, phosphor lifetime, simulation validity, each removed layer's function replacement.
+- **TASK-01 v1.1:** Power calculations corrected (previous version had systematic ×125 error). With corrected numbers, even worst-case E/O interface power (5 pJ/bit @ 108 GB/s) is 4.32 W — not a GPU power-budget problem. The question shifts from "too expensive?" to "worth the complexity for 0.2–4.3 W?"
+
+---
+
+## How to Contribute
+
+### What is needed
+
+- Independent validation of the power-budget calculations (TASK-01)
+- Experimental results for any stage of the roadmap (Section 28)
+- Quantitative comparison: on-package optical vs. on-package electrical interconnect at 30–100 GB/s
+- Spatial addressing feasibility study (Section 26 — Variants A/B/C)
+- Precision characterization of photonic computation for HDR-grade output
+
+### Where to submit
+
+- **GitHub Issues:** Technical discussion, error reports, alternative approaches
+- **GitHub PRs:** Corrections, additions, new research tasks
+- **Direct email:** Experimental results, partnership proposals
+
+### Research tasks
+
+| Task | Description | Estimated effort |
+|------|-------------|-----------------|
+| TASK-01 | E/O interface power-budget analysis | 7–12 days (desktop research) |
+| TASK-02 | Spatial addressing feasibility (open) | TBD |
+| TASK-03 | Optical PSF reconstruction validation (open) | TBD |
+
+---
 
 ## License
 
-CC BY 4.0. The value is in integration, not in patenting components. This is a defensive publication — it exists so that nobody can patent the architecture, including the author.
+Creative Commons Attribution 4.0 International (CC BY 4.0).
 
----
+The architecture is intentionally published openly. Value is in the integration, not in patenting individual components. This serves as defensive publication — preventing competitors from patenting the architectural composition while enabling anyone to implement, commercialize, or build on it.
 
-*Not an engineer? Start with [VISION.md](VISION.md).*
-*Engineer? Start with the full document, then tell me where I'm wrong.*
+**Recommended:** Deposit in Zenodo for a timestamped, citable DOI beyond GitHub.
