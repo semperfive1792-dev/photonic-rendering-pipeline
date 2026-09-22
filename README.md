@@ -159,13 +159,69 @@ See `Economic_Logic.md` for the full rationale with section references.
 - **GitHub PRs:** Corrections, additions, new research tasks
 - **Direct email:** Experimental results, partnership proposals
 
-### Research tasks
+# Photonic Rendering Pipeline (PRP) — Research Roadmap
 
-| Task | Description | Estimated effort |
-|------|-------------|-----------------|
-| TASK-01 | E/O interface power-budget analysis | 7–12 days (desktop research) |
-| TASK-02 | Spatial addressing feasibility (open) | TBD |
-| TASK-03 | Optical PSF reconstruction validation (open) | TBD |
+## Research Tasks
+
+| ID | Title | Stage | Status | Effort (desktop) | Optional Lab Validation |
+|----|-------|-------|--------|-------------------|------------------------|
+| TASK-01 | E/O interface power-budget analysis | §28 Stage 1 | ✅ Done | 7–12 days | — |
+| TASK-02 | Spatial addressing feasibility | §28 Stage 2 | ✅ Done | 10–15 days | $10K–$50K, 3–6 months |
+| TASK-03 | Optical PSF reconstruction validation | §28 Stage 3 | ✅ Done | 7–14 days | $10K–$50K, 2–4 months |
+| TASK-04 | Neural rendering chiplet | §28 Stage 4 | ✅ Done | 12–19 days | $15K–$70K, 6–8 months |
+| TASK-05 | Direct photonic rendering-to-display path | §28 Stage 5 | ✅ Done | 14–21 days | $20K–$100K, 6–12 months |
+| TASK-06 | Speckle & coherent noise | Cross-cutting | ✅ Done | 7–10 days | $10K–$50K, 2–4 months |
+| TASK-07 | Color & HDR in optical domain | Cross-cutting | ✅ Done | 8–12 days | $10K–$50K, 2–4 months |
+| TASK-08 | Temporal performance & motion artifacts | Cross-cutting | ✅ Done | 7–10 days | $10K–$50K, 2–4 months |
+
+### Stage Mapping
+
+| Stage | PRP §28 | Primary TASK | Cross-cutting TASKs |
+|-------|---------|--------------|---------------------|
+| Stage 1 — E/O interface | §28.1 | TASK-01 | — |
+| Stage 2 — Spatial addressing | §28.2 | TASK-02 | TASK-06 (speckle), TASK-07 (bit depth) |
+| Stage 3 — Optical PSF reconstruction | §28.3 | TASK-03 | TASK-06 (speckle), TASK-07 (color), TASK-08 (phosphor decay) |
+| Stage 4 — Neural rendering chiplet | §28.4 | TASK-04 | TASK-07 (precision) |
+| Stage 5 — Direct photonic path | §28.5 | TASK-05 | TASK-06 (speckle), TASK-07 (color/HDR), TASK-08 (temporal) |
+
+### Cross-cutting Tasks
+
+TASK-06, TASK-07, and TASK-08 address open questions that span multiple stages:
+
+- **TASK-06 (Speckle):** Affects Stage 2 (display surface), Stage 3 (PSF vs. speckle), Stage 5 (end-to-end path). Key finding: phosphor-based green/red channels are inherently speckle-free.
+- **TASK-07 (Color & HDR):** Affects Stage 2 (modulation bandwidth × bit depth), Stage 4 (analog precision), Stage 5 (EOTF, color-luminance coupling). Key finding: LBS + PWM achieves 14+ bit; dual-modulator cascade for 10–12 bit without dithering.
+- **TASK-08 (Temporal):** Affects Stage 2 (scan pattern), Stage 3 (phosphor persistence), Stage 5 (end-to-end latency). Key finding: PRP is impulse-type (like CRT), MPRT 1–3 ms, no sample-and-hold blur.
+
+### Open Questions After All Tasks
+
+1. Phosphor aging under high flux density (TASK-07, TASK-08)
+2. Metameric mismatch with laser primaries (TASK-07)
+3. Multi-beam LBS synchronization (TASK-02, TASK-08)
+4. Optical delay loops as framebuffer replacement for temporal effects (TASK-05)
+5. Scaling OPA / switch matrix beyond 10⁶ elements (TASK-02)
+6. Photonic NN error accumulation for pixel-level generation (TASK-04)
+7. Saccadic flicker at >1000 Hz (TASK-08)
+8. Field-sequential color breakup at high eye velocity (TASK-08)
+
+### File Inventory
+
+| File | Description | Size (chars) | Sources |
+|------|-------------|---------------|---------|
+| TASK-01_EO_Interface_Power_Budget.md | E/O interface power-budget analysis | — | — |
+| TASK-02_Spatial_Addressing.md | Spatial addressing feasibility | ~32,000 | 63 |
+| TASK-03_Optical_Reconstruction.md | Optical PSF reconstruction validation | ~19,000 | 32 |
+| TASK-04_Neural_Rendering_Chiplet.md | Neural rendering chiplet | ~29,000 | 40 |
+| TASK-05_Direct_Photonic_Path.md | Direct photonic rendering-to-display path | ~31,000 | 44 |
+| TASK-06_Speckle_Coherent_Noise.md | Speckle & coherent noise | ~32,000 | 47 |
+| TASK-07_Color_HDR_Optical_Domain.md | Color & HDR in optical domain | ~25,000 | 68 |
+| TASK-08_Temporal_Performance.md | Temporal performance & motion artifacts | ~21,000 | 58 |
+
+### Total Coverage
+
+- **8 task documents** covering all 5 stages of §28 + 3 cross-cutting analyses
+- **~350 primary sources** across all documents
+- **~72–100 days** total desktop research effort
+- **~$85K–$470K** optional lab validation budget
 
 ---
 
