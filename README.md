@@ -7,6 +7,16 @@ License: CC BY 4.0
 Status: Architectural proposal / research framework (not a product)
 
 ---
+## Base
+
+This is not a photonics project. Photonics is the vehicle, not the destination.
+The core problem this concept addresses is the economics of data movement — the cost of moving the same information repeatedly across electrical buses, through domain conversions, and between processing stages, with each unnecessary hop adding latency, power consumption, and potential signal degradation without adding value.
+Every architectural decision in this document follows a single principle:
+eliminate what does not contribute to the final image, and preserve what does.
+The continuous optical path, the chiplet-based integration, the phosphor-based display — none of these were chosen because they are photonic. They were chosen because, at each decision point, they offered a potential way to reduce infrastructure and data movement without reducing the required signal integrity or output quality.
+Economy is not the goal at the expense of quality. Economy is the method of preserving quality — by removing what adds cost without adding value.
+
+---
 
 ## Core Idea
 
